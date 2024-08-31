@@ -3,11 +3,14 @@ import os
 import json
 import pickle
 import pathlib
+import shutil
+
 from datetime import datetime
 
 INTERNAL_COMMANDS = ['help', 'load', 'unload', 'reset', 'exit', 'prompt', 'cd', 'chdir']
 INTERNAL_FIXES = ['cd', 'chdir']
 DEFAULT_PROMPT = '$n>'
+INTERNAL_HELP = {'help': ['Shows this message.', 'Displays the description of a specific command, or a list of all possible commands.'], 'load': ['Loads a plugin.', 'Loads extra commands from a file containing them.\nNOTE: External commands may contain malicious software. It is your risk to use them.'], 'unload': ['Unloads a plugin.', 'Unloads a plugin.'], 'reset': ['Resets the command interpreter.', 'Resets all plugins and the prompt variable.'], 'prompt': ['Sets the prompt.', 'Sets the prompt of the command interpreter.'], 'exit': ['Exits the command interpreter.', 'Exits the command interpreter.']}
 
 plugins = []
 all_cmds = []
@@ -22,7 +25,7 @@ def init_commands():
         try:
             module = importlib.import_module(plugin)
         except ModuleNotFoundError:
-            print(f'WARNING: Plugin \'{plugin}\' missing!!')
+            print(f'Plugin \'{plugin}\' missing!')
             plugins.remove(plugin)
             write_plugins()
             continue
@@ -40,11 +43,10 @@ def execute_command(command, argc, argv):
             return
 
 def init_help():
-    help_dict = {}
-    json_files = ['internal'] + plugins
-    for file in json_files:
+    help_dict = INTERNAL_HELP
+    for plugin in ['internal'] + plugins:
         try:
-            with open(f'{file}.json') as f:
+            with open(f'{plugin}.json') as f:
                 help_dict.update(json.load(f))
         except:
             pass
@@ -54,17 +56,21 @@ def init_help():
         long_desc_dict[command] = descriptions[1]
 
 def write_plugins():
-    with open('plugins', 'wb') as f:
+    if not os.path.exists('.xeconsole'): os.mkdir('.xeconsole')
+    
+    with open('.xeconsole/plugins', 'wb') as f:
         pickle.dump(plugins, f)
 
 def write_prompt():
-    with open('prompt', 'w') as f:
+    if not os.path.exists('.xeconsole'): os.mkdir('.xeconsole')
+    
+    with open('.xeconsole/prompt', 'w') as f:
         f.write(prompt)
 
 def read_prompt():
     global prompt
     try:
-        with open('prompt', 'r') as f:
+        with open('.xeconsole/prompt', 'r') as f:
             prompt = f.read()
             
     except FileNotFoundError:
@@ -73,7 +79,7 @@ def read_prompt():
 def read_plugins():
     global plugins
     try:
-        with open('plugins', 'rb') as f:
+        with open('.xeconsole/plugins', 'rb') as f:
             plugins = pickle.load(f)
             
     except FileNotFoundError:
@@ -133,9 +139,10 @@ def main():
             reinit()
             
         elif command == 'reset':
-            if os.path.exists('plugins'):
-                os.remove('plugins')
-            plugins = []
+            if os.path.exists('.xeconsole'):
+                shutil.rmtree('.xeconsole')
+            plugins.clear()
+            old_prompt = DEFAULT_PROMPT
             reinit()
             
         elif command in {'cd', 'chdir'}:
