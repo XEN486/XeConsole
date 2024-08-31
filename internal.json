@@ -1,0 +1,21 @@
+{
+    "help": [
+        "Shows this message.",
+        "Displays the description of a specific command, or a list of all possible commands."
+    ],
+    
+    "load": [
+        "Loads a plugin.",
+        "Loads extra commands from a file containing them.\nNOTE: External commands may contain malicious software. It is your risk to use them."
+    ],
+
+    "unload": [
+        "Unloads a plugin.",
+        "Unloads a plugin."
+    ],
+
+    "exit": [
+        "Exits the command interpreter.",
+        "Exits the command interpreter."
+    ]
+}
