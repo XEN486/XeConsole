@@ -7,7 +7,7 @@ Creating commands is very easy! It should only take you 5 minutes to set up.
 
 ### Create the plugin files
 Create a python file named anything. For example, you could name it `console_commands.py`.\
-Alongside it, you should create a json file of the same name (e.g. `console_commands.json`).
+Alongside it, you should (optionally) create a json file of the same name (e.g. `console_commands.json`).
 
 ### Write your code!
 This step is the most important one. This is where you will write your code.\
