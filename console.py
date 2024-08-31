@@ -9,7 +9,7 @@ from datetime import datetime
 
 INTERNAL_COMMANDS = ['help', 'load', 'unload', 'reset', 'exit', 'prompt', 'cd', 'chdir']
 INTERNAL_FIXES = ['cd', 'chdir']
-DEFAULT_PROMPT = '$n>'
+DEFAULT_PROMPT = '[XeConsole] $p>'
 INTERNAL_HELP = {'help': ['Shows this message.', 'Displays the description of a specific command, or a list of all possible commands.'], 'load': ['Loads a plugin.', 'Loads extra commands from a file containing them.\nNOTE: External commands may contain malicious software. It is your risk to use them.'], 'unload': ['Unloads a plugin.', 'Unloads a plugin.'], 'reset': ['Resets the command interpreter.', 'Resets all plugins and the prompt variable.'], 'prompt': ['Sets the prompt.', 'Sets the prompt of the command interpreter.'], 'exit': ['Exits the command interpreter.', 'Exits the command interpreter.']}
 
 plugins = []
