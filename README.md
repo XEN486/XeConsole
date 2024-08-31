@@ -18,7 +18,7 @@ def command_hello(argc, argv):
   print(f'Hello, world! argc: {argc}, argv: {argv}')
 ```
 
-### Add the help text.
+### Add the help text
 This step is optional but highly recommended. Add your command's descriptions to this file.\
 It should be an array with the short and long descriptions.\
 For example:
