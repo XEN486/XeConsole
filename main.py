@@ -36,8 +36,8 @@ def init_help():
     help_dict = {}
     jsons = ['internal'] + plugins
     for file in jsons:
-        with open(file+'.json') as f:
-            help_dict.update(json.load(f))
+            with open(file+'.json') as f:
+                help_dict.update(json.load(f))
 
     for key in help_dict.keys():
         short_desc_dict[key] = help_dict[key][0]
@@ -85,7 +85,7 @@ def main():
         plugins = []
         reinit()
         
-        print(e+'.')
+        print(e)
         print('All plugins disabled.', end='')
         if type(e) == FileNotFoundError:
             print(f' Recommended action: Run \'fix {e.filename.removesuffix(".json").removesuffix(".py")}\'.')

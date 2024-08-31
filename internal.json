@@ -14,6 +14,11 @@
         "Unloads a plugin."
     ],
 
+    "reset": [
+        "Resets all plugins.",
+        "Resets all plugins."
+    ],
+
     "exit": [
         "Exits the command interpreter.",
         "Exits the command interpreter."
