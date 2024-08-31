@@ -19,7 +19,14 @@ prompt = ''
 
 def init_commands():
     for plugin in plugins:
-        module = importlib.import_module(plugin)
+        try:
+            module = importlib.import_module(plugin)
+        except ModuleNotFoundError:
+            print(f'WARNING: Plugin \'{plugin}\' missing!!')
+            plugins.remove(plugin)
+            write_plugins()
+            continue
+        
         module_dict[plugin] = module
         
         plugin_commands = [command for command in dir(module) if command.startswith('command_')]
@@ -36,8 +43,11 @@ def init_help():
     help_dict = {}
     json_files = ['internal'] + plugins
     for file in json_files:
-        with open(f'{file}.json') as f:
-            help_dict.update(json.load(f))
+        try:
+            with open(f'{file}.json') as f:
+                help_dict.update(json.load(f))
+        except:
+            pass
 
     for command, descriptions in help_dict.items():
         short_desc_dict[command] = descriptions[0]
@@ -93,23 +103,9 @@ def main():
     read_prompt()
     
     old_prompt = prompt
-    enable_fix = False
-
-    try:
-        init_help()
-        init_commands()
-        
-    except Exception as e:
-        old_plugins = plugins
-        enable_fix = True
-        plugins = []
-        reinit()
-        print(f'{e}\nAll plugins disabled.', end='')
-        
-        if isinstance(e, FileNotFoundError):
-            print(f' Recommended action: Run \'fix {e.filename.rstrip(".json")}\'.')
-        else:
-            print()
+    
+    init_help()
+    init_commands()
 
     running = True
     while running:
@@ -139,14 +135,7 @@ def main():
         elif command == 'reset':
             if os.path.exists('plugins'):
                 os.remove('plugins')
-            plugins = ['default_commands']
-            reinit()
-            
-        elif command == 'fix' and enable_fix:
-            plugins = old_plugins
-            plugins.remove(argv[1])
-            write_plugins()
-            print('Done! Other plugins enabled.')
+            plugins = []
             reinit()
             
         elif command in {'cd', 'chdir'}:
@@ -162,7 +151,7 @@ def main():
             
         elif command == 'help':
             if argc > 1:
-                print(long_desc_dict.get(argv[1], 'Command not found!'))
+                print(long_desc_dict.get(argv[1], 'No description'))
             else:
                 for cmd in INTERNAL_COMMANDS:
                     if cmd not in INTERNAL_FIXES:
