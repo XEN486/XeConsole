@@ -1,6 +1,11 @@
-import importlib, os, json, pickle
+import importlib, os, json, pickle, pathlib
+from datetime import datetime
 
-internal_commands = ['help', 'load', 'unload', 'reset', 'exit']
+internal_commands = ['help', 'load', 'unload', 'reset', 'exit', 'prompt', 'cd', 'chdir']
+internal_fixes = ['cd', 'chdir']
+
+default_plugins = ['default_commands']
+default_prompt = '> '
 
 plugins = []
 all_cmds = []
@@ -10,7 +15,7 @@ module_dict = {}
 long_desc_dict = {}
 short_desc_dict = {}
 
-prompt = '>'
+prompt = ''
 
 def init_commands():
     for plugin in plugins:
@@ -47,6 +52,20 @@ def write_plugins():
     with open('plugins', 'wb') as f:
         pickle.dump(plugins, f)
 
+def write_prompt():
+    with open('prompt', 'w') as f:
+        f.write(prompt)
+
+def read_prompt():
+    global prompt
+
+    try:
+        with open('prompt', 'r') as f:
+            prompt = f.read()
+
+    except FileNotFoundError:
+        prompt = default_prompt
+
 def read_plugins():
     global plugins
 
@@ -55,7 +74,10 @@ def read_plugins():
             plugins = pickle.load(f)
 
     except FileNotFoundError:
-        plugins = ['default_commands']
+        plugins = default_plugins
+
+def update_prompt(prompt):
+    return prompt.replace('$n', pathlib.Path.home().drive.removesuffix(':')).replace('$p', os.getcwd()).replace('$t', datetime.now().strftime("%H:%M:%S"))
 
 def reinit():
     global all_cmds, plugin_cmd_dict, module_dict, long_desc_dict, short_desc_dict
@@ -70,8 +92,10 @@ def reinit():
     init_help()
 
 def main():
-    global plugins
+    global plugins, prompt
     read_plugins()
+    read_prompt()
+    old_prompt = prompt
 
     enable_fix = False
 
@@ -85,16 +109,16 @@ def main():
         plugins = []
         reinit()
         
-        print(e)
-        print('All plugins disabled.', end='')
+        print(f'{e}\nAll plugins disabled.', end='')
         if type(e) == FileNotFoundError:
-            print(f' Recommended action: Run \'fix {e.filename.removesuffix(".json").removesuffix(".py")}\'.')
+            print(f' Recommended action: Run \'fix {e.filename.removesuffix(".json")}\'.')
         else:
             print()
 
     running = True
     while running:
-        inp = str(input(prompt + ' '))
+        prompt = update_prompt(old_prompt)
+        inp = str(input(prompt))
         argv = inp.split(' ')
         argc = len(argv)
 
@@ -112,7 +136,11 @@ def main():
             reinit()
 
         elif argv[0] == 'reset':
-            os.remove('plugins')
+            try:
+                os.remove('plugins')
+            except:
+                pass
+            
             plugins = ['default_commands']
             
             reinit()
@@ -125,6 +153,15 @@ def main():
             print('Done! Other plugins enabled.')
             reinit()
 
+        # fix for cmd
+        elif argv[0] == 'cd' or argv[0] == 'chdir':
+            os.chdir(' '.join(argv[1:]))
+
+        elif argv[0] == 'prompt':
+            prompt = ' '.join(argv[1:])
+            old_prompt = prompt
+            write_prompt()
+        
         elif argv[0] == 'exit':
             exit()
 
@@ -135,7 +172,7 @@ def main():
                 except KeyError:
                     print('Command not found!')
             else:
-                [print(f'{int}: {short_desc_dict[int]}') for int in internal_commands]
+                [print(f'{int}: {short_desc_dict[int]}') for int in internal_commands if int not in internal_fixes]
 
                 for cmd in all_cmds:
                     try:

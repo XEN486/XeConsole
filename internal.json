@@ -19,6 +19,11 @@
         "Resets all plugins."
     ],
 
+    "prompt": [
+        "Sets the prompt.",
+        "Sets the prompt of the command interpreter."
+    ],
+
     "exit": [
         "Exits the command interpreter.",
         "Exits the command interpreter."
